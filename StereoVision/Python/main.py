@@ -13,27 +13,128 @@ import triangulation as tri
 
 
 # Open both cameras
-cap_right = cv2.VideoCapture(0, cv2.CAP_DSHOW)                    
-cap_left =  cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
-frame_rate = 120    #Camera frame rate (maximum at 120 fps)
 
-B = 9               #Distance between the cameras [cm]
-f = 6               #Camera lense's focal length [mm]
-alpha = 56.6        #Camera field of view in the horisontal plane [degrees]
+
+from urllib.request import urlopen
+
+pTime = 0
+
+
+
+
+
+
+
+
+cv_file = cv2.FileStorage("params_py.xml", cv2.FILE_STORAGE_READ)
+Left_Stereo_Map_x = cv_file.getNode("Left_Stereo_Map_x").mat()
+Left_Stereo_Map_y = cv_file.getNode("Left_Stereo_Map_y").mat()
+Right_Stereo_Map_x = cv_file.getNode("Right_Stereo_Map_x").mat()
+Right_Stereo_Map_y = cv_file.getNode("Right_Stereo_Map_y").mat()
+cv_file.release()
+
+
+
+
+
+
+
+
+
+
+ret_left = False
+ret_right = False
+
+btsR= b''
+btsL = b''
+# change to your ESP32-CAM ip
+urlLeft = "http://192.168.50.159:81/stream"
+urlRight = "http://192.168.50.246:81/stream"
+CAMERA_BUFFRER_SIZE = 1000
+streamLeft = urlopen(urlLeft)
+streamRight = urlopen(urlRight)
+num=0
+
+ret = None
+
+imgR = None
+imgL = None
+def Esp32Frame(stream,bts,ret):
+    jpghead = -1
+    jpgend = -1
+
+    while (jpghead < 0 or jpgend < 0):
+
+        bts += stream.read(CAMERA_BUFFRER_SIZE)
+
+        if jpghead < 0 :
+            jpghead = bts.find(b'\xff\xd8')
+            jpgend = -1
+
+        if jpgend < 0:
+
+
+            jpgend = bts.find(b'\xff\xd9')
+
+
+        if jpghead > -1 and jpgend > -1:
+            jpg = bts[jpghead:jpgend + 2]
+            bts = bts[jpgend + 2:]
+
+
+            img = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+            img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+
+
+            k = cv2.waitKey(5)
+            ret = True
+
+
+
+        else:
+            ret= False
+
+
+
+    return bts , img,ret
+
+
+
+
+
+
+frame_rate = 10   #Camera frame rate (maximum at 120 fps)
+
+B = 6.75 #Distance between the cameras [cm]
+f = 4.83             #Camera lense's focal length [mm]
+alpha = 56.56531197650641       #Camera field of view in the horisontal plane [degrees]
 
 
 #Initial values
 count = -1
 
-
 while(True):
-    count += 1
-
-    ret_right, frame_right = cap_right.read()
-    ret_left, frame_left = cap_left.read()
 
 ################## CALIBRATION #########################################################
+    btsL, frame_left, ret_left = Esp32Frame(streamLeft, btsL, ret_left)
+
+    frame_left = cv2.remap(frame_left,
+                      Left_Stereo_Map_x,
+                      Left_Stereo_Map_y,
+                      cv2.INTER_LANCZOS4,
+                      cv2.BORDER_CONSTANT,
+                      0)
+
+    btsR, frame_right, ret_right = Esp32Frame(streamRight, btsR, ret_right)
+    frame_right = cv2.remap(frame_right,
+                       Right_Stereo_Map_x,
+                       Right_Stereo_Map_y,
+                       cv2.INTER_LANCZOS4,
+                       cv2.BORDER_CONSTANT,
+                       0)
+# Setting the updated parameters before c
+
 
     #frame_right, frame_left = calib.undistorted(frame_right, frame_left)
 
@@ -46,7 +147,7 @@ while(True):
     else:
         # APPLYING HSV-FILTER:
         mask_right = hsv.add_HSV_filter(frame_right, 1)
-        mask_left = hsv.add_HSV_filter(frame_left, 0)
+        mask_left = hsv.add_HSV_filter(frame_left, 1)
 
         # Result-frames after applying HSV-filter mask
         res_right = cv2.bitwise_and(frame_right, frame_right, mask=mask_right)
@@ -92,7 +193,6 @@ while(True):
 
 
 # Release and destroy all windows before termination
-cap_right.release()
-cap_left.release()
+
 
 cv2.destroyAllWindows()

@@ -2,10 +2,10 @@ import sys
 import cv2
 import numpy as np
 import time
-
+f_pixel = None
 
 def find_depth(circle_right, circle_left, frame_right, frame_left, baseline,f, alpha):
-
+    global f_pixel
     # CONVERT FOCAL LENGTH f FROM [mm] TO [pixel]:
     height_right, width_right, depth_right = frame_right.shape
     height_left, width_left, depth_left = frame_left.shape
