@@ -12,21 +12,22 @@ def add_HSV_filter(frame, camera):
     # Converting RGB to HSV
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
-    l_b_r = np.array([60, 110, 50])        # Lower limit for red ball
-    u_b_r = np.array([255, 255, 255])       # Upper limit for red ball
-    l_b_l = np.array([143, 110, 50])        # Lower limit for red ball
-    u_b_l = np.array([255, 255, 255])       # Upper limit for red ball
 
-	#l_b = np.array([140, 106, 0])        # LOWER LIMIT FOR BLUE COLOR!!!
-	#u_b = np.array([255, 255, 255])
 
-	# HSV-filter mask
-	#mask = cv2.inRange(hsv, l_b_l, u_b_l)
+    h_min = cv2.getTrackbarPos("HUE Min","HSV")
+    h_max = cv2.getTrackbarPos("HUE Max", "HSV")
+    s_min = cv2.getTrackbarPos("SAT Min", "HSV")
+    s_max = cv2.getTrackbarPos("SAT Max", "HSV")
+    v_min = cv2.getTrackbarPos("VALUE Min", "HSV")
+    v_max = cv2.getTrackbarPos("VALUE Max", "HSV")
+
+    lower = np.array([h_min,s_min,v_min])
+    upper = np.array([h_max,s_max,v_max])
 
     if(camera == 1):
-        mask = cv2.inRange(hsv, l_b_r, u_b_r)
+        mask = cv2.inRange(frame,lower,upper)
     else:
-        mask = cv2.inRange(hsv, l_b_l, u_b_l)
+        mask = cv2.inRange(frame,lower,upper)
 
 
     # Morphological Operation - Opening - Erode followed by Dilate - Remove noise

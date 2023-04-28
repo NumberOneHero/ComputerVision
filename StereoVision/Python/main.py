@@ -20,6 +20,16 @@ from urllib.request import urlopen
 
 pTime = 0
 
+def empty():
+    pass
+cv2.namedWindow("TrackBars")
+cv2.resizeWindow("TrackBars",640,240)
+cv2.createTrackbar("HUE Min","HSV",0,179,empty)
+cv2.createTrackbar("SAT Min","HSV",0,255,empty)
+cv2.createTrackbar("VALUE Min","HSV",0,255,empty)
+cv2.createTrackbar("HUE Max","HSV",179,179,empty)
+cv2.createTrackbar("SAT Max","HSV",255,255,empty)
+cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
 
 
 
@@ -51,7 +61,7 @@ btsL = b''
 # change to your ESP32-CAM ip
 urlLeft = "http://192.168.50.159:81/stream"
 urlRight = "http://192.168.50.246:81/stream"
-CAMERA_BUFFRER_SIZE = 1000
+CAMERA_BUFFRER_SIZE = 1024
 streamLeft = urlopen(urlLeft)
 streamRight = urlopen(urlRight)
 num=0
@@ -87,7 +97,7 @@ def Esp32Frame(stream,bts,ret):
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
 
-            k = cv2.waitKey(5)
+            k = cv2.waitKey(15)
             ret = True
 
 
@@ -106,7 +116,7 @@ def Esp32Frame(stream,bts,ret):
 
 frame_rate = 10   #Camera frame rate (maximum at 120 fps)
 
-B = 6.75 #Distance between the cameras [cm]
+B = 6.6 #Distance between the cameras [cm]
 f = 4.83             #Camera lense's focal length [mm]
 alpha = 56.56531197650641       #Camera field of view in the horisontal plane [degrees]
 
