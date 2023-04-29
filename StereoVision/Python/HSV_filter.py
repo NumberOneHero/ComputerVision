@@ -7,7 +7,7 @@ import time
 def add_HSV_filter(frame, camera):
 
 	# Blurring the frame
-    blur = cv2.GaussianBlur(frame,(5,5),0) 
+    blur = cv2.GaussianBlur(frame,(5,5),0)
 
     # Converting RGB to HSV
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
@@ -20,6 +20,7 @@ def add_HSV_filter(frame, camera):
     s_max = cv2.getTrackbarPos("SAT Max", "HSV")
     v_min = cv2.getTrackbarPos("VALUE Min", "HSV")
     v_max = cv2.getTrackbarPos("VALUE Max", "HSV")
+
 
     lower = np.array([h_min,s_min,v_min])
     upper = np.array([h_max,s_max,v_max])

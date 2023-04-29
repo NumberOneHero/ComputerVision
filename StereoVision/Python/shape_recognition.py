@@ -6,7 +6,7 @@ import imutils
 
 def find_circles(frame, mask):
 
-    contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = cv2.findContours(mask.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     center = None
 
@@ -27,6 +27,6 @@ def find_circles(frame, mask):
             cv2.circle(frame, (int(x), int(y)), int(radius),
             	(0, 255, 255), 2)
             cv2.circle(frame, center, 5, (0, 0, 0), -1)
-
+            cv2.drawContours(frame, c, -1, (255, 0, 0), 3)
 
     return center

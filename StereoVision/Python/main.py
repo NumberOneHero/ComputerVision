@@ -13,6 +13,8 @@ import triangulation as tri
 
 
 # Open both cameras
+def empty(a):
+    pass
 
 
 
@@ -20,17 +22,18 @@ from urllib.request import urlopen
 
 pTime = 0
 
-def empty():
-    pass
-cv2.namedWindow("TrackBars")
-cv2.resizeWindow("TrackBars",640,240)
+
+cv2.namedWindow("HSV")
+cv2.resizeWindow("HSV",640,1000)
 cv2.createTrackbar("HUE Min","HSV",0,179,empty)
 cv2.createTrackbar("SAT Min","HSV",0,255,empty)
-cv2.createTrackbar("VALUE Min","HSV",0,255,empty)
+cv2.createTrackbar("VALUE Min","HSV",153,255,empty)
 cv2.createTrackbar("HUE Max","HSV",179,179,empty)
-cv2.createTrackbar("SAT Max","HSV",255,255,empty)
+cv2.createTrackbar("SAT Max","HSV",153,255,empty)
 cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
-
+cv2.createTrackbar("B","HSV",65,100,empty)
+cv2.createTrackbar("ALPHA","HSV",57,100,empty)
+cv2.createTrackbar("F","HSV",483,500,empty)
 
 
 
@@ -97,7 +100,7 @@ def Esp32Frame(stream,bts,ret):
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
 
-            k = cv2.waitKey(15)
+            k = cv2.waitKey(1)
             ret = True
 
 
@@ -116,8 +119,9 @@ def Esp32Frame(stream,bts,ret):
 
 frame_rate = 10   #Camera frame rate (maximum at 120 fps)
 
-B = 6.6 #Distance between the cameras [cm]
-f = 4.83             #Camera lense's focal length [mm]
+B = 6.5 #Distance between the cameras [cm]
+f = 4.13             #Camera lense's focal length [mm]
+#alpha = 60
 alpha = 56.56531197650641       #Camera field of view in the horisontal plane [degrees]
 
 
@@ -125,6 +129,12 @@ alpha = 56.56531197650641       #Camera field of view in the horisontal plane [d
 count = -1
 
 while(True):
+
+    # alpha = cv2.getTrackbarPos("ALPHA", "HSV")
+    # B = cv2.getTrackbarPos("B", "HSV") * 0.1
+    f = cv2.getTrackbarPos("F", "HSV") * 0.01
+    print(B)
+    print(alpha)
 
 ################## CALIBRATION #########################################################
     btsL, frame_left, ret_left = Esp32Frame(streamLeft, btsL, ret_left)
