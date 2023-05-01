@@ -27,6 +27,7 @@ def find_circles(frame, mask):
             cv2.circle(frame, (int(x), int(y)), int(radius),
             	(0, 255, 255), 2)
             cv2.circle(frame, center, 5, (0, 0, 0), -1)
+            cv2.drawContours(frame,c,-1,(0,255,0),2)
 
 
     return center

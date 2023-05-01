@@ -31,8 +31,8 @@ cv2.createTrackbar("VALUE Min","HSV",37,255,empty)
 cv2.createTrackbar("HUE Max","HSV",179,179,empty)
 cv2.createTrackbar("SAT Max","HSV",29,255,empty)
 cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
-cv2.createTrackbar("B","HSV",65,100,empty)
-cv2.createTrackbar("ALPHA","HSV",57,100,empty)
+cv2.createTrackbar("B","HSV",650,1000,empty)
+cv2.createTrackbar("ALPHA","HSV",570,1000,empty)
 cv2.createTrackbar("F","HSV",483,500,empty)
 
 
@@ -105,7 +105,9 @@ def Esp32Frame(stream,bts,ret):
 
 
 
-        else:
+        elif jpghead > -1 and jpgend > -1 and jpgend<jpghead :
+            jpgend = -1
+            jpghead = -1
             ret= False
 
 
@@ -121,18 +123,18 @@ frame_rate = 10   #Camera frame rate (maximum at 120 fps)
 
 B = 6.5 #Distance between the cameras [cm]
 f = 4.13             #Camera lense's focal length [mm]
-#alpha = 60
-alpha = 56.56531197650641       #Camera field of view in the horisontal plane [degrees]
+alpha = 53.3
+#alpha = 56.56531197650641       #Camera field of view in the horisontal plane [degrees]
 
 
 #Initial values
 count = -1
 
 while(True):
-
-    alpha = cv2.getTrackbarPos("ALPHA", "HSV")
-    B = cv2.getTrackbarPos("B", "HSV") * 0.1
-    f = cv2.getTrackbarPos("F", "HSV") * 0.01
+    #
+    # alpha = cv2.getTrackbarPos("ALPHA", "HSV")* 0.1
+    # B = cv2.getTrackbarPos("B", "HSV") * 0.01
+    # f = cv2.getTrackbarPos("F", "HSV") * 0.01
     print(B)
     print(alpha)
 
