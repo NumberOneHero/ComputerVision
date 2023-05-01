@@ -27,9 +27,9 @@ cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV",640,1000)
 cv2.createTrackbar("HUE Min","HSV",0,179,empty)
 cv2.createTrackbar("SAT Min","HSV",0,255,empty)
-cv2.createTrackbar("VALUE Min","HSV",153,255,empty)
+cv2.createTrackbar("VALUE Min","HSV",37,255,empty)
 cv2.createTrackbar("HUE Max","HSV",179,179,empty)
-cv2.createTrackbar("SAT Max","HSV",153,255,empty)
+cv2.createTrackbar("SAT Max","HSV",29,255,empty)
 cv2.createTrackbar("VALUE Max","HSV",255,255,empty)
 cv2.createTrackbar("B","HSV",65,100,empty)
 cv2.createTrackbar("ALPHA","HSV",57,100,empty)
@@ -64,7 +64,7 @@ btsL = b''
 # change to your ESP32-CAM ip
 urlLeft = "http://192.168.50.159:81/stream"
 urlRight = "http://192.168.50.246:81/stream"
-CAMERA_BUFFRER_SIZE = 1024
+CAMERA_BUFFRER_SIZE = 2048
 streamLeft = urlopen(urlLeft)
 streamRight = urlopen(urlRight)
 num=0
@@ -83,7 +83,7 @@ def Esp32Frame(stream,bts,ret):
 
         if jpghead < 0 :
             jpghead = bts.find(b'\xff\xd8')
-            jpgend = -1
+
 
         if jpgend < 0:
 
@@ -91,7 +91,7 @@ def Esp32Frame(stream,bts,ret):
             jpgend = bts.find(b'\xff\xd9')
 
 
-        if jpghead > -1 and jpgend > -1:
+        if jpghead > -1 and jpgend > -1 and jpgend>jpghead:
             jpg = bts[jpghead:jpgend + 2]
             bts = bts[jpgend + 2:]
 
@@ -100,7 +100,7 @@ def Esp32Frame(stream,bts,ret):
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
 
-            k = cv2.waitKey(1)
+            k = cv2.waitKey(3)
             ret = True
 
 
@@ -130,8 +130,8 @@ count = -1
 
 while(True):
 
-    # alpha = cv2.getTrackbarPos("ALPHA", "HSV")
-    # B = cv2.getTrackbarPos("B", "HSV") * 0.1
+    alpha = cv2.getTrackbarPos("ALPHA", "HSV")
+    B = cv2.getTrackbarPos("B", "HSV") * 0.1
     f = cv2.getTrackbarPos("F", "HSV") * 0.01
     print(B)
     print(alpha)
@@ -154,6 +154,7 @@ while(True):
                        cv2.BORDER_CONSTANT,
                        0)
 # Setting the updated parameters before c
+
 
 
     #frame_right, frame_left = calib.undistorted(frame_right, frame_left)
@@ -201,11 +202,15 @@ while(True):
 
 
         # Show the frames
-        cv2.imshow("frame right", frame_right) 
-        cv2.imshow("frame left", frame_left)
-        cv2.imshow("mask right", mask_right) 
-        cv2.imshow("mask left", mask_left)
+        # cv2.imshow("frame right", frame_right)
+        # cv2.imshow("frame left", frame_left)
 
+        cv2.imshow("mask right", mask_right)
+        cv2.imshow("mask left", mask_left)
+        Hori = np.concatenate((frame_left, frame_right), axis=1)
+        Hori = cv2.resize(Hori, (1620, 1080))
+
+        cv2.imshow("Hori", Hori)
 
         # Hit "q" to close the window
         if cv2.waitKey(1) & 0xFF == ord('q'):
