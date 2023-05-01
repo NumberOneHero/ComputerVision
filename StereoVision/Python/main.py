@@ -100,7 +100,7 @@ def Esp32Frame(stream,bts,ret):
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
 
-            k = cv2.waitKey(3)
+            k = cv2.waitKey(2)
             ret = True
 
 
@@ -141,6 +141,7 @@ while(True):
 ################## CALIBRATION #########################################################
     btsL, frame_left, ret_left = Esp32Frame(streamLeft, btsL, ret_left)
 
+    btsR, frame_right, ret_right = Esp32Frame(streamRight, btsR, ret_right)
     frame_left = cv2.remap(frame_left,
                       Left_Stereo_Map_x,
                       Left_Stereo_Map_y,
@@ -148,7 +149,7 @@ while(True):
                       cv2.BORDER_CONSTANT,
                       0)
 
-    btsR, frame_right, ret_right = Esp32Frame(streamRight, btsR, ret_right)
+
     frame_right = cv2.remap(frame_right,
                        Right_Stereo_Map_x,
                        Right_Stereo_Map_y,
