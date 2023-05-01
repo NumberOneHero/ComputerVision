@@ -64,7 +64,7 @@ btsL = b''
 # change to your ESP32-CAM ip
 urlLeft = "http://192.168.50.159:81/stream"
 urlRight = "http://192.168.50.246:81/stream"
-CAMERA_BUFFRER_SIZE = 2048
+CAMERA_BUFFRER_SIZE = 1024
 streamLeft = urlopen(urlLeft)
 streamRight = urlopen(urlRight)
 num=0
@@ -100,7 +100,7 @@ def Esp32Frame(stream,bts,ret):
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
 
-            k = cv2.waitKey(2)
+            k = cv2.waitKey(10)
             ret = True
 
 
@@ -119,7 +119,7 @@ def Esp32Frame(stream,bts,ret):
 
 
 
-frame_rate = 10   #Camera frame rate (maximum at 120 fps)
+frame_rate = 15  #Camera frame rate (maximum at 120 fps)
 
 B = 6.5 #Distance between the cameras [cm]
 f = 4.13             #Camera lense's focal length [mm]
@@ -139,15 +139,14 @@ while(True):
     print(alpha)
 
 ################## CALIBRATION #########################################################
+    ptime = time.time()
     btsL, frame_left, ret_left = Esp32Frame(streamLeft, btsL, ret_left)
-
     btsR, frame_right, ret_right = Esp32Frame(streamRight, btsR, ret_right)
-    frame_left = cv2.remap(frame_left,
-                      Left_Stereo_Map_x,
-                      Left_Stereo_Map_y,
-                      cv2.INTER_LANCZOS4,
-                      cv2.BORDER_CONSTANT,
-                      0)
+    ptime = time.time()  - ptime
+    print(ptime)
+
+
+
 
 
     frame_right = cv2.remap(frame_right,
@@ -156,8 +155,17 @@ while(True):
                        cv2.INTER_LANCZOS4,
                        cv2.BORDER_CONSTANT,
                        0)
-# Setting the updated parameters before c
 
+    frame_left = cv2.remap(frame_left,
+                           Left_Stereo_Map_x,
+                           Left_Stereo_Map_y,
+                           cv2.INTER_LANCZOS4,
+                           cv2.BORDER_CONSTANT,
+                           0)
+
+# Setting the updated parameters before c
+    cv2.imshow("left",frame_left)
+    cv2.imshow("right", frame_right)
 
 
     #frame_right, frame_left = calib.undistorted(frame_right, frame_left)
@@ -175,11 +183,11 @@ while(True):
 
         # Result-frames after applying HSV-filter mask
         res_right = cv2.bitwise_and(frame_right, frame_right, mask=mask_right)
-        res_left = cv2.bitwise_and(frame_left, frame_left, mask=mask_left) 
+        res_left = cv2.bitwise_and(frame_left, frame_left, mask=mask_left)
 
         # APPLYING SHAPE RECOGNITION:
         circles_right = shape.find_circles(frame_right, mask_right)
-        circles_left  = shape.find_circles(frame_left, mask_left)
+        circles_left = shape.find_circles(frame_left, mask_left)
 
         # Hough Transforms can be used aswell or some neural network to do object detection
 
